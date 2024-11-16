@@ -13,6 +13,16 @@ def capitalized_validator(value):
     if value[0].islower():
         raise ValidationError('Value must be capitalized.')
 
+class DateInput(DateInput):
+    input_type = 'date'
+
+class MyModelForm(ModelForm):
+    class Meta:
+        model = Movie
+        fields = '__all__'
+        widgets = {
+            'my_date': DateInput()
+        }
 
 class PastMonthField(DateField):
 
