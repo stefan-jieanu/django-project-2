@@ -33,6 +33,11 @@ class MovieForm(ModelForm):
         model = Movie
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
+
     title = CharField(max_length=128, validators=[capitalized_validator])
     rating = IntegerField(min_value=1, max_value=10)
     released = PastDateField(widget=DateInput)
