@@ -30,3 +30,4 @@ urlpatterns = [
     path('', index),
     path('movies/', include(urls))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+# ^ adauga urls extra pentru fiecare fisier din folderul static/

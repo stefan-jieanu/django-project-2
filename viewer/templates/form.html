@@ -3,10 +3,15 @@
 {% block content %}
 <form method="post">
     {% csrf_token %}
+    <!-- form.non_field_errors = erori generale din form  -->
     {{ form.non_field_errors }}
     <div class="form-group">
+        <!-- Erori care tin de un field anume, in acest caz de field-ul title  -->
         {{ form.title.errors }}
         <label for="{{ form.title.id_for_label }}">Title:</label>
+
+        <!-- Field-uri individuale din formular -->
+        <!-- Numele lor sunt aceleasi ca formularul declarat in forms.py -->
         {{ form.title }}
     </div>
     <div class="row">
