@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, DetailView, ListView, FormView
+from django.views.generic import TemplateView, DetailView, ListView, FormView, CreateView, UpdateView, DeleteView
 
 from viewer.models import Movie, Genre
 from viewer.forms import MovieForm
@@ -48,22 +49,40 @@ class GenreMoviesView(ListView):
         genre = Genre.objects.get(name=self.kwargs['genre_name'])
         return qs.filter(genre=genre)
 
-class MovieCreateView(FormView):
+
+class MovieCreateView(CreateView):
     template_name = 'form.html'
     form_class = MovieForm
 
-    def form_valid(self, form):
-        result = super().form_valid(form)
-        cleaned_data = form.cleaned_data
-        Movie.objects.create(
-            title=cleaned_data['title'],
-            genre=cleaned_data['genre'],
-            rating=cleaned_data['rating'],
-            released=cleaned_data['released'],
-            description=cleaned_data['description']
-        )
-        return result
+    # def form_valid(self, form):
+    #     result = super().form_valid(form)
+    #     cleaned_data = form.cleaned_data
+    #     Movie.objects.create(
+    #         title = cleaned_data['title'],
+    #         genre=cleaned_data['genre'],
+    #         rating=cleaned_data['rating'],
+    #         released=cleaned_data['released'],
+    #         description=cleaned_data['description']
+    #     )
+    #     return result
 
     def form_invalid(self, form):
-        print('User provided invalid data.')
+        print('User provided invalid data')
         return super().form_invalid(form)
+
+
+class MovieUpdateView(UpdateView):
+    template_name = 'form.html'
+    model = Movie
+    form_class = MovieForm
+    success_url = reverse_lazy('movie-list')
+
+    def form_invalid(self, form):
+        print('User provided invalid data')
+        return super().form_invalid(form)
+
+
+class MovieDeleteView(DeleteView):
+    template_name = 'movie_confirm_delete.html'
+    model = Movie
+    success_url = reverse_lazy('movie-list')

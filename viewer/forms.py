@@ -1,7 +1,8 @@
-import re
 from datetime import date
+import re
 
 from django.core.exceptions import ValidationError
+from django.db.models.expressions import result
 from django.forms import (
     CharField, DateField, Form, IntegerField, ModelChoiceField, Textarea, DateInput, ModelForm
 )
@@ -9,38 +10,32 @@ from django.forms import (
 from viewer.models import Genre, Movie
 
 
-def capitalized_validator(value):
-    if value[0].islower():
-        raise ValidationError('Value must be capitalized.')
-
 class DateInput(DateInput):
     input_type = 'date'
 
-class MyModelForm(ModelForm):
-    class Meta:
-        model = Movie
-        fields = '__all__'
-        widgets = {
-            'my_date': DateInput()
-        }
+def capitalized_validator(value):
+    if value[0].islower():
+        raise ValidationError('first letter must be capitalized!')
 
-class PastMonthField(DateField):
-
+class PastDateField(DateField):
     def validate(self, value):
         super().validate(value)
         if value >= date.today():
-            raise ValidationError('Only past dates allowed here.')
+            raise ValidationError('Movie from future!!')
 
     def clean(self, value):
         result = super().clean(value)
-        return date(year=result.year, month=result.month, day=1)
+        # Extra validation if needed (optional)
+        return date(year=result.year, month=result.month, day=result.day)
 
-class MovieForm(Form):
-    title = CharField(max_length=128)
-    genre = ModelChoiceField(queryset=Genre.objects)
+class MovieForm(ModelForm):
+    class Meta:
+        model = Movie
+        fields = '__all__'
+
+    title = CharField(max_length=128, validators=[capitalized_validator])
     rating = IntegerField(min_value=1, max_value=10)
-    released = DateField(widget=DateInput)
-    description = CharField(widget=Textarea, required=False)
+    released = PastDateField(widget=DateInput)
 
     def clean_description(self):
         # Force each sentence of the description to be capitalized.
@@ -50,11 +45,10 @@ class MovieForm(Form):
 
     def clean(self):
         result = super().clean()
-        if result['genre'].name == 'commedy' and result['rating'] > 5:
-            self.add_error('genre' '')
-            self.add_error('rating' '')
+        if result['genre'].name == 'Comedie' and result['rating'] > 5:
+            self.add_error('genre', 'mesaj eroare custom la field-ul genre')
+            self.add_error('rating', 'mesaj eroare custom la field-ul rating')
             raise ValidationError(
-                "Commedies aren't so good to be rated over 5."
+                'Comedies not funny, rating too high'
             )
         return result
-
