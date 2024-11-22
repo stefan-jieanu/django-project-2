@@ -20,10 +20,13 @@ from django.urls import path, include
 from viewer import urls
 from viewer.views import index
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 # Functia include() include path-uri din alte apps
 # care au un fisier urls.py in interiorul lor
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
     path('movies/', include(urls))
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
