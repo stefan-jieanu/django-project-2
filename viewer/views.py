@@ -2,8 +2,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, DetailView, ListView, FormView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from viewer.models import Movie, Genre
 from viewer.forms import MovieForm
@@ -37,9 +36,10 @@ class MoviesView(ListView):
     model = Movie
 
 
-class MoviesViewDetail(LoginRequiredMixin, DetailView):
+class MoviesViewDetail(PermissionRequiredMixin, DetailView):
     template_name = 'movies_detail.html'
     model = Movie
+    permission_required = 'viewer.view_movie'
 
 
 class GenreMoviesView(ListView):
@@ -52,7 +52,7 @@ class GenreMoviesView(ListView):
         return qs.filter(genre=genre)
 
 
-class MovieCreateView(LoginRequiredMixin, CreateView):
+class MovieCreateView(PermissionRequiredMixin, CreateView):
     template_name = 'form.html'
     form_class = MovieForm
 
@@ -73,7 +73,7 @@ class MovieCreateView(LoginRequiredMixin, CreateView):
         return super().form_invalid(form)
 
 
-class MovieUpdateView(LoginRequiredMixin, UpdateView):
+class MovieUpdateView(PermissionRequiredMixin, UpdateView):
     template_name = 'form.html'
     model = Movie
     form_class = MovieForm
@@ -84,7 +84,7 @@ class MovieUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_invalid(form)
 
 
-class MovieDeleteView(LoginRequiredMixin, DeleteView):
+class MovieDeleteView(PermissionRequiredMixin, DeleteView):
     template_name = 'movie_confirm_delete.html'
     model = Movie
     success_url = reverse_lazy('movie-list')
